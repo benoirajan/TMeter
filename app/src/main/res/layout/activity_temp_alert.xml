@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/bg_dark"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <!-- Header -->
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="24dp">
+
+        <ImageButton
+            android:id="@+id/btnBack"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_alignParentStart="true"
+            android:layout_centerVertical="true"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="Back"
+            android:src="@android:drawable/ic_menu_revert"
+            app:tint="@color/white" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:text="Temperature Alert"
+            android:textColor="@color/white"
+            android:textSize="20sp"
+            android:fontFamily="sans-serif-medium" />
+    </RelativeLayout>
+
+    <!-- Alert Config Card -->
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:cardCornerRadius="16dp"
+        app:cardBackgroundColor="@color/card_dark"
+        app:cardElevation="4dp"
+        android:layout_marginBottom="16dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="20dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Set Alert Rule"
+                android:textColor="@color/white"
+                android:textSize="16sp"
+                android:fontFamily="sans-serif-medium"
+                android:layout_marginBottom="16dp" />
+
+            <!-- Operator Selection -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Condition"
+                android:textColor="@color/text_muted"
+                android:textSize="12sp"
+                android:layout_marginBottom="8dp" />
+
+            <RadioGroup
+                android:id="@+id/rgOperator"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="16dp">
+
+                <RadioButton
+                    android:id="@+id/rbGreaterEqual"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="≥ (Greater or Equal)"
+                    android:textColor="@color/white"
+                    android:buttonTint="@color/colorPrimary"
+                    android:checked="true" />
+
+                <RadioButton
+                    android:id="@+id/rbLessEqual"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="≤ (Less or Equal)"
+                    android:textColor="@color/white"
+                    android:buttonTint="@color/colorPrimary" />
+
+                <RadioButton
+                    android:id="@+id/rbEqual"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="≈ (Equal ±0.5)"
+                    android:textColor="@color/white"
+                    android:buttonTint="@color/colorPrimary" />
+            </RadioGroup>
+
+            <!-- Threshold Input -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Threshold Temperature (°C)"
+                android:textColor="@color/text_muted"
+                android:textSize="12sp"
+                android:layout_marginBottom="8dp" />
+
+            <EditText
+                android:id="@+id/etThreshold"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:background="@color/bg_dark"
+                android:hint="e.g. 35.0"
+                android:textColor="@color/white"
+                android:textColorHint="@color/text_muted"
+                android:textSize="18sp"
+                android:inputType="numberDecimal|numberSigned"
+                android:padding="12dp" />
+
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+    <!-- Status Card -->
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:cardCornerRadius="16dp"
+        app:cardBackgroundColor="@color/card_dark"
+        app:cardElevation="4dp"
+        android:layout_marginBottom="24dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="20dp"
+            android:gravity="center">
+
+            <TextView
+                android:id="@+id/tvAlertStatus"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Alert Inactive"
+                android:textColor="@color/text_muted"
+                android:textSize="14sp"
+                android:layout_marginBottom="4dp" />
+
+            <TextView
+                android:id="@+id/tvAlertRule"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="No rule configured"
+                android:textColor="@color/white"
+                android:textSize="16sp"
+                android:fontFamily="sans-serif-medium" />
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+    <!-- Toggle Button -->
+    <Button
+        android:id="@+id/btnToggleAlert"
+        style="@style/Widget.MaterialComponents.Button"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:text="Activate Alert"
+        android:textColor="@color/white"
+        android:backgroundTint="@color/sensor_green"
+        app:cornerRadius="16dp" />
+
+</LinearLayout>
