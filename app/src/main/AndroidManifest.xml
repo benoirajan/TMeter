@@ -4,7 +4,7 @@
 
     <!-- Permissions needed for background service and notifications -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
 
@@ -28,12 +28,31 @@
             </intent-filter>
         </activity>
 
+        <activity
+            android:name=".LogAnalyticsActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".RecordingCalendarActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".TempAlertActivity"
+            android:exported="false" />
+
         <!-- Background Service for temperature recording -->
         <service
             android:name=".service.TemperatureRecordService"
             android:enabled="true"
             android:exported="false"
-            android:foregroundServiceType="dataSync" />
+            android:foregroundServiceType="specialUse" />
+
+        <!-- Alert monitoring service -->
+        <service
+            android:name=".service.TemperatureAlertService"
+            android:enabled="true"
+            android:exported="false"
+            android:foregroundServiceType="specialUse" />
 
     </application>
 

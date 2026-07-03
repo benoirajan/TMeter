@@ -1,195 +1,233 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/bg_dark"
-    android:padding="16dp"
+    android:fillViewport="true"
     tools:context=".MainActivity">
 
-    <RelativeLayout
-        android:id="@+id/headerBar"
-        android:layout_width="0dp"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        android:orientation="vertical"
+        android:padding="16dp">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentStart="true"
-            android:layout_centerVertical="true"
-            android:text="@string/app_name"
-            android:textColor="@color/white"
-            android:fontFamily="sans-serif-medium"
-            android:textSize="24sp" />
-
-        <ImageButton
-            android:id="@+id/btnSettings"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:layout_alignParentEnd="true"
-            android:layout_centerVertical="true"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="@string/settings"
-            android:src="@android:drawable/ic_menu_preferences"
-            app:tint="@color/white" />
-    </RelativeLayout>
-
-    <androidx.cardview.widget.CardView
-        android:id="@+id/tempCard"
-        android:layout_width="0dp"
-        android:layout_height="220dp"
-        android:layout_marginTop="24dp"
-        app:cardCornerRadius="24dp"
-        app:cardBackgroundColor="@color/card_dark"
-        app:cardElevation="8dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/headerBar">
-
-        <LinearLayout
+        <!-- Header -->
+        <RelativeLayout
+            android:id="@+id/headerBar"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical"
-            android:gravity="center"
-            android:padding="16dp">
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/title_current_temp"
-                android:textColor="@color/text_muted"
-                android:textSize="14sp"
-                android:textAllCaps="true"
-                android:letterSpacing="0.1" />
-
-            <TextView
-                android:id="@+id/tvCurrentTemp"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="--.- °C"
+                android:layout_alignParentStart="true"
+                android:layout_centerVertical="true"
+                android:text="@string/app_name"
                 android:textColor="@color/white"
-                android:textSize="54sp"
-                android:fontFamily="sans-serif-black"
-                android:layout_marginTop="8dp" />
+                android:fontFamily="sans-serif-medium"
+                android:textSize="24sp" />
+
+            <ImageButton
+                android:id="@+id/btnSettings"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="@string/settings"
+                android:src="@android:drawable/ic_menu_preferences"
+                app:tint="@color/white" />
+        </RelativeLayout>
+
+        <!-- Temperature Display Card -->
+        <androidx.cardview.widget.CardView
+            android:id="@+id/tempCard"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            app:cardCornerRadius="24dp"
+            app:cardBackgroundColor="@color/card_dark"
+            app:cardElevation="8dp">
 
             <LinearLayout
-                android:id="@+id/layoutSourceTag"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:background="@android:color/transparent"
-                android:paddingHorizontal="12dp"
-                android:paddingVertical="4dp"
-                android:layout_marginTop="12dp"
-                android:gravity="center">
-
-                <View
-                    android:id="@+id/viewSourceIndicatorDot"
-                    android:layout_width="8dp"
-                    android:layout_height="8dp"
-                    android:background="@color/sensor_green"
-                    android:layout_marginEnd="6dp" />
+                android:orientation="vertical"
+                android:gravity="center"
+                android:padding="24dp">
 
                 <TextView
-                    android:id="@+id/tvSourceText"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Detecting..."
+                    android:text="@string/title_current_temp"
+                    android:textColor="@color/text_muted"
+                    android:textSize="14sp"
+                    android:textAllCaps="true"
+                    android:letterSpacing="0.1" />
+
+                <TextView
+                    android:id="@+id/tvCurrentTemp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="--.- °C"
                     android:textColor="@color/white"
-                    android:textSize="12sp"
-                    android:fontFamily="sans-serif-medium" />
+                    android:textSize="54sp"
+                    android:fontFamily="sans-serif-black"
+                    android:layout_marginTop="8dp" />
+
+                <LinearLayout
+                    android:id="@+id/layoutSourceTag"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:background="@android:color/transparent"
+                    android:paddingHorizontal="12dp"
+                    android:paddingVertical="4dp"
+                    android:layout_marginTop="12dp"
+                    android:gravity="center">
+
+                    <View
+                        android:id="@+id/viewSourceIndicatorDot"
+                        android:layout_width="8dp"
+                        android:layout_height="8dp"
+                        android:background="@color/sensor_green"
+                        android:layout_marginEnd="6dp" />
+
+                    <TextView
+                        android:id="@+id/tvSourceText"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Detecting..."
+                        android:textColor="@color/white"
+                        android:textSize="12sp"
+                        android:fontFamily="sans-serif-medium" />
+                </LinearLayout>
             </LinearLayout>
-        </LinearLayout>
-    </androidx.cardview.widget.CardView>
+        </androidx.cardview.widget.CardView>
 
-    <LinearLayout
-        android:id="@+id/controlsLayout"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:orientation="horizontal"
-        android:gravity="center"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tempCard">
-
-        <Button
-            android:id="@+id/btnToggleRecording"
-            style="@style/Widget.MaterialComponents.Button.Icon"
-            android:layout_width="0dp"
-            android:layout_height="56dp"
-            android:layout_weight="1"
-            android:text="@string/start_recording"
-            android:textColor="@color/white"
-            android:backgroundTint="@color/colorPrimary"
-            android:insetTop="0dp"
-            android:insetBottom="0dp"
-            app:cornerRadius="16dp"
-            android:layout_marginEnd="8dp" />
-
-        <Button
-            android:id="@+id/btnClearLogs"
-            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-            android:layout_width="wrap_content"
-            android:layout_height="56dp"
-            android:text="@string/clear_data"
-            android:textColor="@color/colorAccent"
-            app:strokeColor="@color/colorAccent"
-            app:cornerRadius="16dp"
-            android:insetTop="0dp"
-            android:insetBottom="0dp" />
-    </LinearLayout>
-
-    <TextView
-        android:id="@+id/tvStatusSubtext"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:text="@string/recording_inactive"
-        android:textColor="@color/text_muted"
-        android:textSize="12sp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/controlsLayout" />
-
-    <androidx.cardview.widget.CardView
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginBottom="8dp"
-        app:cardCornerRadius="24dp"
-        app:cardBackgroundColor="@color/card_dark"
-        app:cardElevation="4dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tvStatusSubtext"
-        app:layout_constraintBottom_toBottomOf="parent">
-
+        <!-- Controls -->
         <LinearLayout
+            android:id="@+id/controlsLayout"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical"
-            android:padding="16dp">
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:orientation="horizontal"
+            android:gravity="center">
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Temperature Log History"
+            <Button
+                android:id="@+id/btnToggleRecording"
+                style="@style/Widget.MaterialComponents.Button.Icon"
+                android:layout_width="0dp"
+                android:layout_height="56dp"
+                android:layout_weight="1"
+                android:text="@string/start_recording"
                 android:textColor="@color/white"
-                android:textSize="14sp"
-                android:fontFamily="sans-serif-medium"
-                android:layout_marginBottom="12dp" />
+                android:backgroundTint="@color/colorPrimary"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                app:cornerRadius="16dp"
+                android:layout_marginEnd="8dp" />
 
-            <com.github.mikephil.charting.charts.LineChart
-                android:id="@+id/tempChart"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent" />
+            <Button
+                android:id="@+id/btnClearLogs"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="wrap_content"
+                android:layout_height="56dp"
+                android:text="@string/clear_data"
+                android:textColor="@color/colorAccent"
+                app:strokeColor="@color/colorAccent"
+                app:cornerRadius="16dp"
+                android:insetTop="0dp"
+                android:insetBottom="0dp" />
         </LinearLayout>
-    </androidx.cardview.widget.CardView>
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+        <TextView
+            android:id="@+id/tvStatusSubtext"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_gravity="center_horizontal"
+            android:text="@string/recording_inactive"
+            android:textColor="@color/text_muted"
+            android:textSize="12sp" />
+
+        <!-- View Logs Button -->
+        <Button
+            android:id="@+id/btnViewLogs"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginTop="12dp"
+            android:text="@string/view_log_analytics"
+            android:textColor="@color/white"
+            app:strokeColor="@color/card_border"
+            app:cornerRadius="12dp"
+            app:icon="@android:drawable/ic_menu_recent_history"
+            app:iconTint="@color/white" />
+
+        <!-- Calendar Button -->
+        <Button
+            android:id="@+id/btnViewCalendar"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginTop="8dp"
+            android:text="@string/view_calendar"
+            android:textColor="@color/white"
+            app:strokeColor="@color/card_border"
+            app:cornerRadius="12dp"
+            app:icon="@android:drawable/ic_menu_my_calendar"
+            app:iconTint="@color/white" />
+
+        <!-- Alert Button -->
+        <Button
+            android:id="@+id/btnTempAlert"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginTop="8dp"
+            android:text="@string/temp_alert"
+            android:textColor="@color/white"
+            app:strokeColor="@color/battery_orange"
+            app:cornerRadius="12dp"
+            app:icon="@android:drawable/ic_dialog_alert"
+            app:iconTint="@color/battery_orange" />
+
+        <!-- Chart Card -->
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="8dp"
+            app:cardCornerRadius="24dp"
+            app:cardBackgroundColor="@color/card_dark"
+            app:cardElevation="4dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Temperature Log History"
+                    android:textColor="@color/white"
+                    android:textSize="14sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:layout_marginBottom="12dp" />
+
+                <com.github.mikephil.charting.charts.LineChart
+                    android:id="@+id/tempChart"
+                    android:layout_width="match_parent"
+                    android:layout_height="300dp" />
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+    </LinearLayout>
+</androidx.core.widget.NestedScrollView>

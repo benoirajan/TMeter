@@ -38,6 +38,7 @@ import com.tmeter.service.TemperatureRecordService;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -145,14 +146,23 @@ public class MainActivity extends AppCompatActivity {
                     .setPositiveButton("Clear All", (dialog, which) -> {
                         AppDatabase.databaseWriteExecutor.execute(() -> {
                             database.temperatureLogDao().clearAllLogs();
+                            runOnUiThread(() -> Toast.makeText(MainActivity.this, "Logs cleared successfully", Toast.LENGTH_SHORT).show());
                         });
-                        Toast.makeText(MainActivity.this, "Logs cleared successfully", Toast.LENGTH_SHORT).show();
                     })
                     .setNegativeButton(R.string.cancel, null)
                     .show();
         });
         
         btnSettings.setOnClickListener(v -> showFrequencySettingsDialog());
+
+        findViewById(R.id.btnViewLogs).setOnClickListener(v ->
+                startActivity(new Intent(this, LogAnalyticsActivity.class)));
+
+        findViewById(R.id.btnViewCalendar).setOnClickListener(v ->
+                startActivity(new Intent(this, RecordingCalendarActivity.class)));
+
+        findViewById(R.id.btnTempAlert).setOnClickListener(v ->
+                startActivity(new Intent(this, TempAlertActivity.class)));
     }
 
     private void handleRecordingToggle() {
@@ -189,13 +199,13 @@ public class MainActivity extends AppCompatActivity {
         
         if (isRecordingActive) {
             btnToggleRecording.setText(R.string.stop_recording);
-            btnToggleRecording.setBackgroundColor(ContextCompat.getColor(this, R.color.colorAccent));
+            btnToggleRecording.setBackgroundTintList(android.content.res.ColorStateList.valueOf(ContextCompat.getColor(this, R.color.colorAccent)));
             btnToggleRecording.setCompoundDrawablesWithIntrinsicBounds(android.R.drawable.ic_media_pause, 0, 0, 0);
             tvStatusSubtext.setText(R.string.recording_active);
             tvStatusSubtext.setTextColor(ContextCompat.getColor(this, R.color.sensor_green));
         } else {
             btnToggleRecording.setText(R.string.start_recording);
-            btnToggleRecording.setBackgroundColor(ContextCompat.getColor(this, R.color.colorPrimary));
+            btnToggleRecording.setBackgroundTintList(android.content.res.ColorStateList.valueOf(ContextCompat.getColor(this, R.color.colorPrimary)));
             btnToggleRecording.setCompoundDrawablesWithIntrinsicBounds(android.R.drawable.ic_media_play, 0, 0, 0);
             tvStatusSubtext.setText(R.string.recording_inactive);
             tvStatusSubtext.setTextColor(ContextCompat.getColor(this, R.color.text_muted));
@@ -278,7 +288,14 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void observeDatabase() {
-        database.temperatureLogDao().getAllLogsLive().observe(this, logs -> {
+        Calendar cal = Calendar.getInstance();
+        cal.set(Calendar.HOUR_OF_DAY, 0);
+        cal.set(Calendar.MINUTE, 0);
+        cal.set(Calendar.SECOND, 0);
+        cal.set(Calendar.MILLISECOND, 0);
+        long startOfDay = cal.getTimeInMillis();
+
+        database.temperatureLogDao().getTodayLogsLive(startOfDay).observe(this, logs -> {
             if (logs != null && !logs.isEmpty()) {
                 updateChartData(logs);
             } else {
