@@ -1,8 +1,6 @@
 package com.tmeter;
 
 import android.Manifest;
-import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -141,19 +139,26 @@ public class MainActivity extends AppCompatActivity {
         
         btnClearLogs.setOnClickListener(v -> {
             new AlertDialog.Builder(this)
-                    .setTitle("Clear Log History")
-                    .setMessage("Are you sure you want to delete all stored temperature readings?")
-                    .setPositiveButton("Clear All", (dialog, which) -> {
+                    .setTitle("Clear Today's Logs")
+                    .setMessage("Are you sure you want to delete today's temperature readings?")
+                    .setPositiveButton("Clear Today", (dialog, which) -> {
                         AppDatabase.databaseWriteExecutor.execute(() -> {
-                            database.temperatureLogDao().clearAllLogs();
-                            runOnUiThread(() -> Toast.makeText(MainActivity.this, "Logs cleared successfully", Toast.LENGTH_SHORT).show());
+                            Calendar c = Calendar.getInstance();
+                            c.set(Calendar.HOUR_OF_DAY, 0);
+                            c.set(Calendar.MINUTE, 0);
+                            c.set(Calendar.SECOND, 0);
+                            c.set(Calendar.MILLISECOND, 0);
+                            long start = c.getTimeInMillis();
+                            long end = start + 86400000L - 1;
+                            database.temperatureLogDao().deleteLogsBetween(start, end);
+                            runOnUiThread(() -> Toast.makeText(MainActivity.this, "Today's logs cleared", Toast.LENGTH_SHORT).show());
                         });
                     })
                     .setNegativeButton(R.string.cancel, null)
                     .show();
         });
         
-        btnSettings.setOnClickListener(v -> showFrequencySettingsDialog());
+        btnSettings.setOnClickListener(v -> startActivity(new Intent(this, SettingsActivity.class)));
 
         findViewById(R.id.btnViewLogs).setOnClickListener(v ->
                 startActivity(new Intent(this, LogAnalyticsActivity.class)));
@@ -210,51 +215,6 @@ public class MainActivity extends AppCompatActivity {
             tvStatusSubtext.setText(R.string.recording_inactive);
             tvStatusSubtext.setTextColor(ContextCompat.getColor(this, R.color.text_muted));
         }
-    }
-
-    private void showFrequencySettingsDialog() {
-        final String[] optionsText = {
-                "10 Seconds",
-                "30 Seconds",
-                "1 Minute",
-                "5 Minutes",
-                "15 Minutes",
-                "30 Minutes",
-                "1 Hour"
-        };
-        final String[] optionsValue = {
-                "10000",
-                "30000",
-                "60000",
-                "300000",
-                "900000",
-                "1800000",
-                "3600000"
-        };
-
-        String currentVal = sharedPreferences.getString("recording_frequency_ms", "60000");
-        int checkedItem = 2; // Default 1 minute
-        for (int i = 0; i < optionsValue.length; i++) {
-            if (optionsValue[i].equals(currentVal)) {
-                checkedItem = i;
-                break;
-            }
-        }
-
-        new AlertDialog.Builder(this)
-                .setTitle("Select Recording Frequency")
-                .setSingleChoiceItems(optionsText, checkedItem, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        sharedPreferences.edit()
-                                .putString("recording_frequency_ms", optionsValue[which])
-                                .apply();
-                        Toast.makeText(MainActivity.this, "Frequency updated: " + optionsText[which], Toast.LENGTH_SHORT).show();
-                        dialog.dismiss();
-                    }
-                })
-                .setNegativeButton(R.string.cancel, null)
-                .show();
     }
 
     private void setupChart() {

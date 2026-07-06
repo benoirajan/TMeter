@@ -40,6 +40,10 @@
             android:name=".TempAlertActivity"
             android:exported="false" />
 
+        <activity
+            android:name=".SettingsActivity"
+            android:exported="false" />
+
         <!-- Background Service for temperature recording -->
         <service
             android:name=".service.TemperatureRecordService"

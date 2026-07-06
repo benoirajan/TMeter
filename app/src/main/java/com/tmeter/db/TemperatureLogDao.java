@@ -25,6 +25,9 @@ public interface TemperatureLogDao {
     @Query("DELETE FROM temperature_logs WHERE timestamp < :cutoff")
     void deleteOldLogs(long cutoff);
 
+    @Query("DELETE FROM temperature_logs WHERE timestamp >= :from AND timestamp <= :to")
+    void deleteLogsBetween(long from, long to);
+
     @Query("SELECT * FROM temperature_logs ORDER BY timestamp DESC")
     List<TemperatureLog> getAllLogsDirect();
 
