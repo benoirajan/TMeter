@@ -1,6 +1,5 @@
 package com.tmeter.service;
 
-import android.app.AlarmManager;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -11,8 +10,10 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ServiceInfo;
 import android.os.Build;
+import android.os.Handler;
+import android.os.HandlerThread;
 import android.os.IBinder;
-import android.os.SystemClock;
+import android.os.PowerManager;
 import android.util.Log;
 
 import androidx.annotation.Nullable;
@@ -31,16 +32,40 @@ public class TemperatureRecordService extends Service {
     private static final String TAG = "TempRecordService";
     private static final String CHANNEL_ID = "temperature_logger_channel";
     private static final int NOTIFICATION_ID = 1001;
-    private static final int ALARM_REQUEST_CODE = 3001;
-    public static final String ACTION_RECORD_TEMP = "com.tmeter.action.RECORD_TEMP";
+    private static final String WAKELOCK_TAG = "TMeter::RecordingWakeLock";
+
+    private static final long TICK_INTERVAL_MS = 10000L; // 10 seconds tick
 
     private TemperatureProvider temperatureProvider;
     private AppDatabase database;
-    private AlarmManager alarmManager;
-    private PendingIntent alarmPendingIntent;
+
+    private HandlerThread handlerThread;
+    private Handler handler;
+    private PowerManager.WakeLock wakeLock;
 
     private SharedPreferences sharedPreferences;
     private SharedPreferences.OnSharedPreferenceChangeListener preferenceChangeListener;
+
+    private long lastRecordTimestamp = 0;
+
+    private final Runnable recordRunnable = new Runnable() {
+        @Override
+        public void run() {
+            checkAndRecordTemperature();
+            handler.postDelayed(this, TICK_INTERVAL_MS);
+        }
+    };
+
+    private void checkAndRecordTemperature() {
+        long now = System.currentTimeMillis();
+        long interval = getRecordingInterval();
+
+        if (lastRecordTimestamp == 0 || (now - lastRecordTimestamp) >= interval) {
+            recordTemperature();
+            lastRecordTimestamp = now;
+        }
+    }
+
 
     @Override
     public void onCreate() {
@@ -51,7 +76,16 @@ public class TemperatureRecordService extends Service {
         temperatureProvider.startListening((temperature, source) -> { });
 
         database = AppDatabase.getDatabase(this);
-        alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+
+        // Dedicated background thread for consistent timing
+        handlerThread = new HandlerThread("TempRecordThread");
+        handlerThread.start();
+        handler = new Handler(handlerThread.getLooper());
+
+        // Acquire partial wake lock to keep CPU alive for exact intervals
+        PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
+        wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, WAKELOCK_TAG);
+        wakeLock.acquire();
 
         createNotificationChannel();
 
@@ -65,51 +99,19 @@ public class TemperatureRecordService extends Service {
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         preferenceChangeListener = (sharedPrefs, key) -> {
             if ("recording_frequency_ms".equals(key)) {
-                Log.d(TAG, "Frequency changed, rescheduling logger alarm");
+                Log.d(TAG, "Frequency changed, rescheduling logger");
                 rescheduleLoggingTask();
             }
         };
         sharedPreferences.registerOnSharedPreferenceChangeListener(preferenceChangeListener);
 
-        // Immediate initial recording and schedule first alarm
-        recordTemperature();
-        scheduleNextAlarm(getRecordingInterval());
-    }
-
-    private void scheduleNextAlarm(long delayMs) {
-        if (alarmManager == null) {
-            alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-        }
-
-        long triggerAtRealtime = SystemClock.elapsedRealtime() + delayMs;
-        Intent intent = new Intent(this, TemperatureRecordService.class);
-        intent.setAction(ACTION_RECORD_TEMP);
-
-        alarmPendingIntent = PendingIntent.getService(
-                this, ALARM_REQUEST_CODE, intent,
-                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
-        );
-
-        if (alarmManager != null) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                alarmManager.setAndAllowWhileIdle(AlarmManager.ELAPSED_REALTIME_WAKEUP, triggerAtRealtime, alarmPendingIntent);
-            } else {
-                alarmManager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, triggerAtRealtime, alarmPendingIntent);
-            }
-            Log.d(TAG, "Scheduled next temperature recording alarm in " + delayMs + "ms");
-        }
-    }
-
-    private void cancelAlarm() {
-        if (alarmManager != null && alarmPendingIntent != null) {
-            alarmManager.cancel(alarmPendingIntent);
-            alarmPendingIntent = null;
-        }
+        handler.post(recordRunnable);
     }
 
     private void rescheduleLoggingTask() {
-        cancelAlarm();
-        scheduleNextAlarm(getRecordingInterval());
+        lastRecordTimestamp = 0;
+        handler.removeCallbacks(recordRunnable);
+        handler.post(recordRunnable);
     }
 
     private long getRecordingInterval() {
@@ -179,11 +181,6 @@ public class TemperatureRecordService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        if (intent != null && ACTION_RECORD_TEMP.equals(intent.getAction())) {
-            Log.d(TAG, "Alarm triggered: recording temperature");
-            recordTemperature();
-            scheduleNextAlarm(getRecordingInterval());
-        }
         return START_STICKY;
     }
 
@@ -191,7 +188,12 @@ public class TemperatureRecordService extends Service {
     public void onDestroy() {
         Log.d(TAG, "Service onDestroy");
 
-        cancelAlarm();
+        handler.removeCallbacks(recordRunnable);
+        handlerThread.quitSafely();
+
+        if (wakeLock != null && wakeLock.isHeld()) {
+            wakeLock.release();
+        }
 
         if (temperatureProvider != null) {
             temperatureProvider.stopListening();
@@ -213,4 +215,3 @@ public class TemperatureRecordService extends Service {
         return null;
     }
 }
-
