@@ -34,6 +34,8 @@ public class TemperatureRecordService extends Service {
     private static final int NOTIFICATION_ID = 1001;
     private static final String WAKELOCK_TAG = "TMeter::RecordingWakeLock";
 
+    private static final long TICK_INTERVAL_MS = 10000L; // 10 seconds tick
+
     private TemperatureProvider temperatureProvider;
     private AppDatabase database;
 
@@ -44,13 +46,26 @@ public class TemperatureRecordService extends Service {
     private SharedPreferences sharedPreferences;
     private SharedPreferences.OnSharedPreferenceChangeListener preferenceChangeListener;
 
+    private long lastRecordTimestamp = 0;
+
     private final Runnable recordRunnable = new Runnable() {
         @Override
         public void run() {
-            recordTemperature();
-            handler.postDelayed(this, getRecordingInterval());
+            checkAndRecordTemperature();
+            handler.postDelayed(this, TICK_INTERVAL_MS);
         }
     };
+
+    private void checkAndRecordTemperature() {
+        long now = System.currentTimeMillis();
+        long interval = getRecordingInterval();
+
+        if (lastRecordTimestamp == 0 || (now - lastRecordTimestamp) >= interval) {
+            recordTemperature();
+            lastRecordTimestamp = now;
+        }
+    }
+
 
     @Override
     public void onCreate() {
@@ -94,6 +109,7 @@ public class TemperatureRecordService extends Service {
     }
 
     private void rescheduleLoggingTask() {
+        lastRecordTimestamp = 0;
         handler.removeCallbacks(recordRunnable);
         handler.post(recordRunnable);
     }
